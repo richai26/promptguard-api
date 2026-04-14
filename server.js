@@ -14,8 +14,7 @@ app.use(express.json());
 app.use(cors({
   origin: [
     'chrome-extension://*',
-'https://promptguard-api-production-ff1c.up.railway.app',    'http://localhost:3001',
-  ],
+'https://promptguard-dashboard.vercel.app',  ],
   methods: ['GET', 'POST'],
 }));
 
