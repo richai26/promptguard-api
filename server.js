@@ -14,8 +14,7 @@ app.use(express.json());
 app.use(cors({
   origin: [
     'chrome-extension://*',
-    'https://your-dashboard.vercel.app', // update this once dashboard is deployed
-    'http://localhost:3001',
+'https://promptguard-api-production-ff1c.up.railway.app',    'http://localhost:3001',
   ],
   methods: ['GET', 'POST'],
 }));
