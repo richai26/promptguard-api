@@ -11,7 +11,8 @@ app.use(express.json());
 app.use(cors({
   origin: [
     'chrome-extension://*',
-'https://promptguard-dashboard.vercel.app',    'http://localhost:3001',
+    'https://promptguard-dashboard.vercel.app',
+    'http://localhost:3001',
   ],
   methods: ['GET', 'POST'],
 }));
@@ -20,9 +21,10 @@ app.use(rateLimit({
   max: 60,
   message: { error: 'Too many requests' },
 }));
-app.use('/api/events',  require('./routes/events'));
-app.use('/api/policy',  require('./routes/policy'));
-app.use('/api/stats',   require('./routes/stats'));
+app.use('/api/events', require('./routes/events'));
+app.use('/api/policy', require('./routes/policy'));
+app.use('/api/stats', require('./routes/stats'));
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 app.listen(PORT, () => {
   console.log(`PromptGuard API running on port ${PORT}`);
+});
