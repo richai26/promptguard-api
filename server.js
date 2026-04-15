@@ -9,11 +9,7 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(express.json());
 app.use(cors({
-  origin: [
-    'chrome-extension://*',
-    'https://promptguard-dashboard.vercel.app',
-    'http://localhost:3001',
-  ],
+origin: true,
   methods: ['GET', 'POST'],
 }));
 app.use(rateLimit({
