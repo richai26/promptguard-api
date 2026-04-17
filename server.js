@@ -8,11 +8,13 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(express.json());
-app.use(cors({
-origin: true,
-  methods: ['GET', 'POST'],
-}));
-app.use(rateLimit({
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});app.use(rateLimit({
   windowMs: 60 * 1000,
   max: 60,
   message: { error: 'Too many requests' },
