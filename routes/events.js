@@ -26,7 +26,7 @@ async function requireApiKey(req, res, next) {
 
 // ── POST /api/events — log a single event from the extension ──────────────
 router.post('/', requireApiKey, async (req, res) => {
-  const { user_id, tool, tool_id, risk_level, risk_category, action, url, timestamp } = req.body;
+  const { user_id, tool, tool_id, risk_level, risk_category, action, url, timestamp, prompt_text } = req.body;
 
   // Basic validation
   if (!tool || !risk_level || !action) {
@@ -44,9 +44,12 @@ router.post('/', requireApiKey, async (req, res) => {
   }
 
   try {
+    // Flagged prompts may carry their text (capped) so a reviewer can see what was caught
+    const withText = pool.hasPromptText;
+    const text = typeof prompt_text === 'string' && prompt_text.trim() ? prompt_text.slice(0, 500) : null;
     const result = await pool.query(
-      `INSERT INTO events (org_id, user_id, tool, tool_id, risk_level, risk_category, action, url, timestamp)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO events (org_id, user_id, tool, tool_id, risk_level, risk_category, action, url, timestamp${withText ? ', prompt_text' : ''})
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9${withText ? ', $10' : ''})
        RETURNING id`,
       [
         req.org.id,
@@ -58,7 +61,7 @@ router.post('/', requireApiKey, async (req, res) => {
         action,
         url || null,
         timestamp ? new Date(timestamp) : new Date(),
-      ]
+      ].concat(withText ? [text] : [])
     );
 
     res.json({ ok: true, id: result.rows[0].id });
@@ -77,7 +80,7 @@ router.get('/', requireApiKey, async (req, res) => {
 
   try {
     let query = `
-      SELECT id, user_id, tool, risk_level, risk_category, action, url, timestamp
+      SELECT id, user_id, tool, risk_level, risk_category, action, url, timestamp${pool.hasPromptText ? ', prompt_text' : ''}
       FROM events
       WHERE org_id = $1
     `;
