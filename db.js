@@ -16,4 +16,12 @@ pool.connect((err, client, release) => {
   }
 });
 
+// Add the prompt_text column if this database predates it. Until that has
+// succeeded, pool.hasPromptText stays false and the routes leave the column out,
+// so logging keeps working either way.
+pool.hasPromptText = false;
+pool.query('ALTER TABLE events ADD COLUMN IF NOT EXISTS prompt_text TEXT')
+  .then(() => { pool.hasPromptText = true; console.log('prompt_text column ready'); })
+  .catch((err) => console.error('Could not add prompt_text column:', err.message));
+
 module.exports = pool;
