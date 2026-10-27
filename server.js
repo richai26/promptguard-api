@@ -22,6 +22,7 @@ app.use((req, res, next) => {
 app.use('/api/events', require('./routes/events'));
 app.use('/api/policy', require('./routes/policy'));
 app.use('/api/stats', require('./routes/stats'));
+app.use('/api/org', require('./routes/org'));
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 app.listen(PORT, () => {
   console.log(`PromptGuard API running on port ${PORT}`);

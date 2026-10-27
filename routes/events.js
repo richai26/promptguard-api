@@ -2,30 +2,11 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { requireIngestKey, requireAdminKey } = require('../auth');
 
-// ── Middleware: validate API key ───────────────────────────────────────────
-async function requireApiKey(req, res, next) {
-  const key = req.headers['x-api-key'];
-  if (!key) return res.status(401).json({ error: 'API key required' });
-
-  try {
-    const result = await pool.query(
-      'SELECT id, name FROM organisations WHERE api_key = $1',
-      [key]
-    );
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid API key' });
-    }
-    req.org = result.rows[0]; // attach org to request
-    next();
-  } catch (err) {
-    console.error('Auth error:', err.message);
-    res.status(500).json({ error: 'Server error' });
-  }
-}
 
 // ── POST /api/events — log a single event from the extension ──────────────
-router.post('/', requireApiKey, async (req, res) => {
+router.post('/', requireIngestKey, async (req, res) => {
   const { user_id, tool, tool_id, risk_level, risk_category, action, url, timestamp, prompt_text } = req.body;
 
   // Basic validation
@@ -72,7 +53,7 @@ router.post('/', requireApiKey, async (req, res) => {
 });
 
 // ── GET /api/events — return recent events for dashboard ──────────────────
-router.get('/', requireApiKey, async (req, res) => {
+router.get('/', requireAdminKey, async (req, res) => {
   const limit  = Math.min(parseInt(req.query.limit)  || 50, 200);
   const offset = Math.max(parseInt(req.query.offset) || 0,  0);
   const level  = req.query.level;   // optional filter: LOW / MEDIUM / HIGH
