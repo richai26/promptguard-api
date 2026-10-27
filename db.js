@@ -24,4 +24,10 @@ pool.query('ALTER TABLE events ADD COLUMN IF NOT EXISTS prompt_text TEXT')
   .then(() => { pool.hasPromptText = true; console.log('prompt_text column ready'); })
   .catch((err) => console.error('Could not add prompt_text column:', err.message));
 
+// Dashboard access codes: one per company, separate from the company code the browser agent uses.
+pool.hasAdminKey = false;
+pool.query('ALTER TABLE organisations ADD COLUMN IF NOT EXISTS admin_key TEXT UNIQUE')
+  .then(() => { pool.hasAdminKey = true; console.log('admin_key column ready'); })
+  .catch((err) => console.error('Could not add admin_key column:', err.message));
+
 module.exports = pool;
